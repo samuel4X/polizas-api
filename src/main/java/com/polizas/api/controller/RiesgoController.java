@@ -1,6 +1,5 @@
 package com.polizas.api.controller;
 
-import com.polizas.api.dto.CrearRiesgoRequestDTO;
 import com.polizas.api.dto.RiesgoResponseDTO;
 import com.polizas.api.service.RiesgoService;
 import org.springframework.web.bind.annotation.*;

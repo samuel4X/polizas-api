@@ -1,6 +1,5 @@
 package com.polizas.api.mapper;
 
-import com.polizas.api.dto.CrearRiesgoRequestDTO;
 import com.polizas.api.dto.PolizaResponseDTO;
 import com.polizas.api.entity.Poliza;
 

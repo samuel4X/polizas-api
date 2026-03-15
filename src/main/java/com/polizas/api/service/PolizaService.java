@@ -1,9 +1,6 @@
 package com.polizas.api.service;
 
-import com.polizas.api.dto.CrearPolizaRequestDTO;
-import com.polizas.api.dto.CrearRiesgoRequestDTO;
-import com.polizas.api.dto.PolizaResponseDTO;
-import com.polizas.api.dto.RiesgoResponseDTO;
+import com.polizas.api.dto.*;
 import com.polizas.api.entity.Poliza;
 import com.polizas.api.entity.Riesgo;
 import com.polizas.api.enums.EstadoPoliza;
@@ -34,7 +31,12 @@ public class PolizaService {
     }
 
     public List<PolizaResponseDTO> listarPolizas(TipoPoliza tipo , EstadoPoliza estado){
+        if (estado == EstadoPoliza.CANCELADA){
+            throw new IllegalStateException("No se encontro poliza activa");
+        }
+
         List<Poliza> polizas;
+
         if (tipo != null && estado != null) {
             polizas = polizaRepository.findByTipoAndEstado(tipo, estado);
         }
@@ -52,17 +54,20 @@ public class PolizaService {
     }
 
     public List<RiesgoResponseDTO> obtenerRiesgosPorPoliza(Long polizaId) {
-        polizaRepository.findById(polizaId)
-                .orElseThrow(() -> new RuntimeException("Poliza no encontrada"));
 
-        List<Riesgo> riesgos = riesgoRepository.findByPolizaId(polizaId);
+        polizaRepository.findById(polizaId)
+                .orElseThrow(() -> new IllegalStateException("Poliza no encontrada"));
+
+        List<Riesgo> riesgos = riesgoRepository.findByPolizaId(polizaId).stream()
+                .filter(riesgo -> !(riesgo.getEstado() == EstadoRiesgo.CANCELADO)).toList();
+
 
         return RiesgoMapper.toDTOList(riesgos);
     }
 
     public RiesgoResponseDTO  agregarRiesgo(Long polizaId, CrearRiesgoRequestDTO request){
         Poliza poliza = polizaRepository.findById(polizaId).
-                orElseThrow(() -> new RuntimeException(("Poliza no encontrado")));
+                orElseThrow(() -> new IllegalStateException(("Poliza no encontrado")));
 
         if(poliza.getTipo() != TipoPoliza.COLECTIVA){
             List<Riesgo> riesgos = riesgoRepository.findByPolizaId(polizaId);
@@ -72,7 +77,7 @@ public class PolizaService {
             }
         }
         if(poliza.getEstado() == EstadoPoliza.CANCELADA) {
-            throw new RuntimeException("La poliza se encuentra cancelada");
+            throw new IllegalStateException("La poliza se encuentra cancelada");
         }
 
         Riesgo riesgo = new Riesgo();
@@ -87,19 +92,16 @@ public class PolizaService {
         return RiesgoMapper.toDTO(riesgo);
     }
 
-    public PolizaResponseDTO renovarPoliza (Long polizaId){
+    public PolizaResponseDTO renovarPoliza (Long polizaId, RenovarPolizaRequestDTO ipc){
 
         Poliza poliza = polizaRepository.findById(polizaId)
-                .orElseThrow(() -> new RuntimeException("Poliza no encontrada"));
+                .orElseThrow(() -> new IllegalStateException("Poliza no encontrada"));
 
         if(poliza.getEstado() == EstadoPoliza.CANCELADA){
-            throw new RuntimeException("No se puede renovar una poliza cancelada");
+            throw new IllegalStateException("No se puede renovar una poliza cancelada");
         }
 
-        BigDecimal ipc = new BigDecimal("0.10");
-
-
-        BigDecimal nuevoCanon = poliza.getCanonMensual().multiply(BigDecimal.ONE.add(ipc));
+        BigDecimal nuevoCanon = poliza.getCanonMensual().multiply(BigDecimal.ONE.add(ipc.getIpc()));
         long meses = ChronoUnit.MONTHS.between(poliza.getFechaInicio(), poliza.getFechaFin());
         BigDecimal prima = nuevoCanon.multiply(BigDecimal.valueOf(meses));
 
@@ -114,7 +116,7 @@ public class PolizaService {
 
     public PolizaResponseDTO cancelarPoliza(Long polizaId){
         Poliza poliza = polizaRepository.findById(polizaId).
-                orElseThrow(() -> new RuntimeException("Poliza no encontrada"));
+                orElseThrow(() -> new IllegalStateException("Poliza no encontrada"));
         List<Riesgo> riesgos = riesgoRepository.findByPolizaId(polizaId);
         riesgos.forEach(riesgo -> riesgo.setEstado(EstadoRiesgo.CANCELADO));
 
@@ -129,12 +131,15 @@ public class PolizaService {
     public PolizaResponseDTO crearPoliza(CrearPolizaRequestDTO request){
         Poliza poliza = new Poliza();
 
+
         poliza.setTipo(request.getTipo());
         poliza.setCanonMensual(request.getCanonMensual());
         poliza.setFechaInicio(request.getFechaInicio());
         poliza.setFechaFin(request.getFechaFin());
         poliza.setEstado(EstadoPoliza.ACTIVA);
-
+        if (poliza.getFechaInicio().isAfter(request.getFechaFin())) {
+            throw new IllegalArgumentException("La fecha inicio no puede ser mayor a la final");
+        }
         long meses = ChronoUnit.MONTHS.between(
                 request.getFechaInicio(),
                 request.getFechaFin()

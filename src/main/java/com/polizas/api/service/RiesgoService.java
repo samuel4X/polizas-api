@@ -1,16 +1,11 @@
 package com.polizas.api.service;
 
-import com.polizas.api.dto.PolizaResponseDTO;
 import com.polizas.api.dto.RiesgoResponseDTO;
 import com.polizas.api.entity.Riesgo;
-import com.polizas.api.enums.EstadoPoliza;
 import com.polizas.api.enums.EstadoRiesgo;
-import com.polizas.api.enums.TipoPoliza;
 import com.polizas.api.mapper.RiesgoMapper;
 import com.polizas.api.repository.RiesgoRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class RiesgoService {
@@ -23,10 +18,10 @@ public class RiesgoService {
 
     public RiesgoResponseDTO cancelarRiesgo(long riesgoId) {
         Riesgo riesgo = repository.findById(riesgoId)
-                .orElseThrow(() -> new RuntimeException("No se encuentró el riesgo"));
+                .orElseThrow(() -> new IllegalStateException("No se encuentró el riesgo"));
 
         riesgo.setEstado(EstadoRiesgo.CANCELADO);
-        repository.delete(riesgo);
+        repository.save(riesgo);
 
         return RiesgoMapper.toDTO(riesgo);
     }

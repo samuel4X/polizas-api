@@ -1,6 +1,5 @@
 package com.polizas.api.dto;
 
-import com.polizas.api.enums.EstadoRiesgo;
 import lombok.Getter;
 import lombok.Setter;
 

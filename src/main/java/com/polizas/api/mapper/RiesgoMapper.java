@@ -1,8 +1,6 @@
 package com.polizas.api.mapper;
 
-import com.polizas.api.dto.PolizaResponseDTO;
 import com.polizas.api.dto.RiesgoResponseDTO;
-import com.polizas.api.entity.Poliza;
 import com.polizas.api.entity.Riesgo;
 
 import java.util.List;

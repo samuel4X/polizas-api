@@ -1,12 +1,10 @@
 package com.polizas.api.controller;
 
-import com.polizas.api.dto.CrearPolizaRequestDTO;
-import com.polizas.api.dto.CrearRiesgoRequestDTO;
-import com.polizas.api.dto.PolizaResponseDTO;
-import com.polizas.api.dto.RiesgoResponseDTO;
+import com.polizas.api.dto.*;
 import com.polizas.api.enums.EstadoPoliza;
 import com.polizas.api.enums.TipoPoliza;
 import com.polizas.api.service.PolizaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,8 +36,11 @@ public class PolizaController {
     }
 
     @PostMapping("/{id}/renovar")
-    public PolizaResponseDTO renovarPoliza(@PathVariable Long id) {
-        return polizaService.renovarPoliza(id);
+    public PolizaResponseDTO renovarPoliza(
+            @PathVariable Long id,
+            @Valid @RequestBody RenovarPolizaRequestDTO ipc
+    ) {
+        return polizaService.renovarPoliza(id, ipc);
     }
 
     @PostMapping("/{id}/cancelar")
@@ -50,13 +51,13 @@ public class PolizaController {
     @PostMapping("/{id}/riesgos")
     public RiesgoResponseDTO agregarRiesgo(
             @PathVariable Long id,
-            @RequestBody CrearRiesgoRequestDTO request) {
+            @Valid @RequestBody CrearRiesgoRequestDTO request) {
 
         return polizaService.agregarRiesgo(id, request);
     }
 
     @PostMapping
-    public PolizaResponseDTO crearPoliza(@RequestBody CrearPolizaRequestDTO request) {
+    public PolizaResponseDTO crearPoliza(@Valid @RequestBody CrearPolizaRequestDTO request) {
         return polizaService.crearPoliza(request);
     }
 }
