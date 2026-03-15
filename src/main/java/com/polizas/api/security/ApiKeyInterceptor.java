@@ -1,4 +1,4 @@
-package com.polizas.api.config;
+package com.polizas.api.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

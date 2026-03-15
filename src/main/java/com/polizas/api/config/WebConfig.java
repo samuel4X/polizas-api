@@ -1,5 +1,6 @@
 package com.polizas.api.config;
 
+import com.polizas.api.security.ApiKeyInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
