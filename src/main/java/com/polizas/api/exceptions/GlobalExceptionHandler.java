@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> estadoInvalido(Exception ex) {
 
         ErrorResponse error = new ErrorResponse(
-                "Error interno del servidor",
+                ex.getMessage(),
                 400,
                 LocalDateTime.now()
         );
