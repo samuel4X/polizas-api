@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CoreClient {
-    // Cambio 2: Uso de la interfaz de SLF4J
     private static final Logger logger = LoggerFactory.getLogger(CoreClient.class);
 
     public void enviarEventoActualizacion(Long polizaId) {
