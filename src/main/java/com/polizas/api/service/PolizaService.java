@@ -87,9 +87,9 @@ public class PolizaService {
         riesgo.setArrendatario(request.getArrendatario());
         riesgo.setPoliza(poliza);
 
-        riesgoRepository.save(riesgo);
-        coreClient.enviarEventoActualizacion(riesgo.getId());
-        return RiesgoMapper.toDTO(riesgo);
+        Riesgo riesgoFinal = riesgoRepository.save(riesgo);
+        coreClient.enviarEventoActualizacion(poliza.getId());
+        return RiesgoMapper.toDTO(riesgoFinal);
     }
 
     public PolizaResponseDTO renovarPoliza (Long polizaId, RenovarPolizaRequestDTO ipc){
